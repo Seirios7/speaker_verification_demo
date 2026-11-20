@@ -535,8 +535,7 @@
       <section id="demo" style="margin-bottom: 16px;">
         <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
           <div>
-            <span class="section-tag">Interactive Web Demo (ONNX Runtime Web)</span>
-            <h2 class="section-title">🎙️ ECAPA-TDNN による話者照合・話者探索デモ（ブラウザ内推論）</h2>
+            <h2 class="section-title">🎙️ ECAPA-TDNN による話者照合・話者探索デモ</h2>
           </div>
           <a href="#paper" class="btn btn-outline" style="font-size: 0.88rem; padding: 9px 16px; color: var(--primary-light); border-color: #93c5fd; background: #eff6ff;">
             📄 研究・論文紹介ページを見る →
@@ -544,10 +543,9 @@
         </div>
 
         <div class="card">
-          <!-- Model Status Indicator -->
-          <div id="model-status" class="model-status-bar">
-            <span id="model-status-text">⏳ 学習済み ECAPA-TDNN モデル (models/ecapa_tdnn.onnx) をブラウザに準備中...</span>
-            <span id="model-perf-badge" style="font-size: 0.8rem; opacity: 0.9;">入力: 80次元対数メルスペクトログラム → 出力: 192次元話者埋め込み</span>
+          <!-- Model Status Indicator (Hidden unless an error occurs) -->
+          <div id="model-status" class="model-status-bar" style="display: none; background: #fef2f2; border-color: #fecaca; color: #b91c1c;">
+            <span id="model-status-text"></span>
           </div>
 
           <!-- Tabs Navigation -->
@@ -556,7 +554,7 @@
             🔍 機能①：1:1 話者照合 (Speaker Verification)
           </button>
           <button class="demo-tab-btn" onclick="switchDemoTab('tab-identify', this)">
-            👥 機能②：1:N 話者探索・新規登録 (Speaker Identification)
+            👥 機能②：1:N 話者識別(Speaker Identification)
           </button>
         </div>
 
@@ -564,28 +562,12 @@
              TAB 1: 1:1 Speaker Verification
              =============================================================== -->
         <div id="tab-verify" class="demo-panel active">
-          <p style="font-size: 0.93rem; color: var(--text-sub); margin-bottom: 14px;">
-            録音または選択した <strong>2つの音声の話者が同一人物かどうか</strong> を判定します。セリフ（発話内容）が異なっていても、声質（話者性）が同じであれば192次元話者埋め込みベクトルのコサイン類似度が高くなります。
+          <p style="font-size: 0.93rem; color: var(--text-sub); margin-bottom: 6px;">
+            録音または選択した <strong>2つの音声の話者が同一人物かどうか</strong> を判定します。セリフが異なっていても、話者が同じであれば同じだと判定されます。
           </p>
-
-          <!-- Quick Sample Presets -->
-          <div style="font-size: 0.86rem; font-weight: 700; color: #1e293b;">
-            💡 マイクなしで即体験できるワンクリック・サンプルプリセット：
-          </div>
-          <div class="preset-grid">
-            <button class="btn-outline" onclick="runVerifyPreset('spk_nanami', 'enroll', 'spk_nanami', 'test')">
-              ✅ 同一話者・別セリフ（女性：七海）
-            </button>
-            <button class="btn-outline" onclick="runVerifyPreset('spk_keita', 'enroll', 'spk_keita', 'test')">
-              ✅ 同一話者・別セリフ（男性：圭太）
-            </button>
-            <button class="btn-outline" onclick="runVerifyPreset('spk_nanami', 'enroll', 'spk_mayu', 'enroll')">
-              ❌ 別話者・女性同士（七海 vs 真由）
-            </button>
-            <button class="btn-outline" onclick="runVerifyPreset('spk_nanami', 'enroll', 'spk_keita', 'enroll')">
-              ❌ 別話者・男女（七海 vs 圭太）
-            </button>
-          </div>
+          <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 18px;">
+            ※録音・選択した音声はブラウザ内でのみ一時的に処理され、外部への送信や保存は一切行われません（ページを閉じるか再読み込みすると消去されます）。
+          </p>
 
           <!-- Audio 1 & Audio 2 Inputs -->
           <div class="grid-2" style="margin-bottom: 18px;">
@@ -634,14 +616,14 @@
           <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; background: #f8fafc; border: 1px solid var(--border); padding: 14px 18px; border-radius: 12px; margin-bottom: 18px;">
             <div style="flex: 1; min-width: 260px;">
               <div style="display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; margin-bottom: 4px;">
-                <span>⚖️ 判定しきい値 (Threshold): <strong id="thresh-val-label" style="color: var(--primary-light);">0.50</strong></span>
+                <span>⚖️ 判定しきい値 (Threshold): <strong id="thresh-val-label" style="color: var(--primary-light);">0.50</strong> <span style="font-size: 0.8rem; color: #059669; font-weight: 600;">(推奨: 0.50)</span></span>
                 <span style="font-size: 0.78rem; color: #64748b; font-weight: 500;">※スライダーを動かすと即座に判定が切り替わります</span>
               </div>
               <input id="thresh-slider" type="range" min="0.00" max="0.90" step="0.01" value="0.50"
                 style="width: 100%; accent-color: #2563eb; cursor: pointer;"
                 oninput="onThresholdSliderChange(this.value)" />
               <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
-                しきい値を上げると他人受入率 (FAR) が下がり、下げると本人拒否率 (FRR) が下がります（両者が一致する点が論文中の EER）。
+                しきい値を上げると他人受入率 (FAR) は下がりますが、本人拒否率 (FRR) は上がります。
               </div>
             </div>
             <button id="btn-run-verify" class="btn btn-primary" onclick="runVerification()" style="padding: 13px 26px; font-size: 0.96rem;">
@@ -669,97 +651,90 @@
              TAB 2: 1:N Speaker Identification & Voice Enrollment
              =============================================================== -->
         <div id="tab-identify" class="demo-panel">
-          <p style="font-size: 0.93rem; color: var(--text-sub); margin-bottom: 16px;">
-            入力された音声から192次元の話者埋め込みベクトルを抽出し、<strong>登録されている話者データベースの中で誰の声に最も近いか</strong>をコサイン類似度順に表示します。右側のフォームから<strong>あなた自身の声をその場で新規登録</strong>して試すこともできます。
+          <p style="font-size: 0.93rem; color: var(--text-sub); margin-bottom: 6px;">
+            登録されている話者の中で誰の声に最も近いかを表示します。右側のフォームからあなた自身の声を登録することもできます。
+          </p>
+          <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 18px;">
+            ※録音・選択した音声や追加登録した声はブラウザ内でのみ一時的に処理され、外部への送信や保存は一切行われません（ページを閉じるか再読み込みすると消去されます）。
           </p>
 
-          <div class="grid-2">
-            <!-- Left Column: Query & Ranking Output -->
-            <div>
-              <div class="audio-input-box" style="margin-bottom: 16px;">
-                <h4>
-                  <span>🔎 ステップA：探索したい音声を入力</span>
-                  <span id="q-audio-status" style="font-size: 0.78rem; color: #2563eb; font-weight: 600;">未選択</span>
-                </h4>
-                <div class="audio-controls-row">
-                  <button id="btn-rec-q" class="btn-record" onclick="toggleMicRecording('q')">🔴 マイク録音</button>
-                  <label class="btn-outline" style="cursor: pointer;">
-                    📂 ファイル選択
-                    <input type="file" accept="audio/*" style="display: none;" onchange="handleFileUpload(event, 'q')" />
-                  </label>
-                  <button class="btn btn-primary" onclick="runIdentification()" style="padding: 8px 18px; font-size: 0.86rem;">
-                    🔍 近い話者を探す
-                  </button>
-                </div>
-                <audio id="player-q" class="audio-player" controls></audio>
-                <div id="caption-q" class="audio-caption">マイクで録音するか、下のワンクリック・テスト音声ボタンを押してください。</div>
-
-                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
-                  <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
-                    💡 ワンクリック・テスト音声（登録音声とは別のセリフを喋った音声で探索）：
-                  </div>
-                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <button class="btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" onclick="runIdentifySample('spk_nanami')">🎵 七海の別セリフ</button>
-                    <button class="btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" onclick="runIdentifySample('spk_keita')">🎵 圭太の別セリフ</button>
-                    <button class="btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" onclick="runIdentifySample('spk_mayu')">🎵 真由の別セリフ</button>
-                    <button class="btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" onclick="runIdentifySample('spk_naoki')">🎵 直樹の別セリフ</button>
-                    <button class="btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" onclick="runIdentifySample('spk_aria')">🎵 Ariaの別セリフ</button>
-                    <button class="btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" onclick="runIdentifySample('spk_guy')">🎵 Guyの別セリフ</button>
-                  </div>
-                </div>
+          <!-- Row 1: Left (Input Audio) / Right (DB Enrollment) -->
+          <div class="grid-2" style="margin-bottom: 18px;">
+            <!-- Left Column: Input Audio to Identify -->
+            <div class="audio-input-box">
+              <h4>
+                <span>🎙️ 識別したい音声（テスト音声）</span>
+                <span id="q-audio-status" style="font-size: 0.78rem; color: #2563eb; font-weight: 600;">未選択</span>
+              </h4>
+              <div class="audio-controls-row">
+                <button id="btn-rec-q" class="btn-record" onclick="toggleMicRecording('q')">🔴 マイク録音</button>
+                <label class="btn-outline" style="cursor: pointer;">
+                  📂 ファイル選択
+                  <input type="file" accept="audio/*" style="display: none;" onchange="handleFileUpload(event, 'q')" />
+                </label>
+                <select id="select-q" class="select-sample" onchange="handleSampleSelect('q', this.value)">
+                  <option value="">🎵 サンプル音声を選ぶ...</option>
+                </select>
               </div>
-
-              <!-- Identification Ranking Result -->
-              <div id="identify-result-box"></div>
+              <audio id="player-q" class="audio-player" controls></audio>
+              <div id="caption-q" class="audio-caption">マイク録音・ファイル選択・サンプルから識別したい音声を入力してください。</div>
             </div>
 
-            <!-- Right Column: Enroll New Voice & Registered Database Table -->
-            <div>
-              <div class="audio-input-box" style="margin-bottom: 16px; border-color: #bfdbfe; background: #f0f9ff;">
-                <h4 style="color: #1e40af;">
-                  <span>➕ ステップB（任意）：自分の声を新規登録する</span>
-                  <span id="e-audio-status" style="font-size: 0.78rem; color: #1e40af;"></span>
-                </h4>
-                <div style="margin-bottom: 10px;">
-                  <input id="enroll-name-input" type="text" placeholder="登録する名前（例：木村、面接官A など）"
-                    style="width: 100%; padding: 9px 12px; border: 1px solid #93c5fd; border-radius: 10px; font-size: 0.88rem; font-family: inherit;" />
-                </div>
-                <div class="audio-controls-row">
-                  <button id="btn-rec-e" class="btn-record" onclick="toggleMicRecording('e')">🔴 登録用の声を録音</button>
-                  <label class="btn-outline" style="cursor: pointer;">
-                    📂 ファイル選択
-                    <input type="file" accept="audio/*" style="display: none;" onchange="handleFileUpload(event, 'e')" />
-                  </label>
-                  <button class="btn btn-primary" onclick="enrollUserVoice()" style="padding: 8px 16px; font-size: 0.85rem;">
-                    📥 データベースに追加登録
-                  </button>
-                </div>
-                <audio id="player-e" class="audio-player" controls></audio>
-                <div id="enroll-msg" class="audio-caption" style="color: #1e3a8a;">
-                  名前を入れて3〜5秒ほど声を録音し「追加登録」を押すと、左側の探索対象リストにあなたの声が追加されます。
-                </div>
+            <!-- Right Column: Enroll New Voice into Database -->
+            <div class="audio-input-box" style="border-color: #bfdbfe; background: #f0f9ff;">
+              <h4 style="color: #1e40af;">
+                <span>➕ データベースへ声を新規登録する</span>
+                <span id="e-audio-status" style="font-size: 0.78rem; color: #1e40af;"></span>
+              </h4>
+              <div style="margin-bottom: 12px;">
+                <input id="enroll-name-input" type="text" placeholder="登録する名前（例：木村、面接官A など）"
+                  style="width: 100%; padding: 9px 12px; border: 1px solid #93c5fd; border-radius: 10px; font-size: 0.88rem; font-family: inherit; background: #ffffff;" />
               </div>
-
-              <!-- Registered Speakers List -->
-              <div style="border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: #ffffff;">
-                <h4 style="font-size: 0.92rem; margin-bottom: 10px; color: #1e293b;">
-                  📋 現在登録されている話者データベース (<span id="db-count-label">6</span>名)
-                </h4>
-                <div class="table-wrapper">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>話者名</th>
-                        <th>区分</th>
-                        <th>登録音声</th>
-                      </tr>
-                    </thead>
-                    <tbody id="speaker-db-tbody"></tbody>
-                  </table>
-                </div>
+              <div class="audio-controls-row">
+                <button id="btn-rec-e" class="btn-record" onclick="toggleMicRecording('e')">🔴 登録用の声を録音</button>
+                <label class="btn-outline" style="cursor: pointer;">
+                  📂 ファイル選択
+                  <input type="file" accept="audio/*" style="display: none;" onchange="handleFileUpload(event, 'e')" />
+                </label>
+                <button class="btn btn-primary" onclick="enrollUserVoice()" style="padding: 8px 16px; font-size: 0.85rem;">
+                  📥 データベースに追加登録
+                </button>
+              </div>
+              <audio id="player-e" class="audio-player" controls></audio>
+              <div id="enroll-msg" class="audio-caption" style="color: #1e3a8a; margin-top: 8px;">
+                名前を入力して3〜5秒ほど声を録音（またはファイル選択）し、「データベースに追加登録」を押すと登録話者一覧に追加されます。
               </div>
             </div>
           </div>
+
+          <!-- Row 2: Registered Speakers Database List (Full Width) -->
+          <div style="margin-bottom: 18px; border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: #ffffff;">
+            <h4 style="font-size: 0.94rem; margin-bottom: 10px; color: #1e293b;">
+              📋 登録話者データベース一覧・試聴 (<span id="db-count-label">6</span>名)
+            </h4>
+            <div class="table-wrapper" style="max-height: 240px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>話者名</th>
+                    <th>区分</th>
+                    <th>登録音声（試聴）</th>
+                  </tr>
+                </thead>
+                <tbody id="speaker-db-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Row 3: Identification Button -->
+          <div style="display: flex; justify-content: center; margin-bottom: 18px;">
+            <button class="btn btn-primary" onclick="runIdentification()" style="padding: 13px 36px; font-size: 0.98rem;">
+              🔍 話者を識別する
+            </button>
+          </div>
+
+          <!-- Bottom Row: Identification Result -->
+          <div id="identify-result-box"></div>
         </div>
 
         </div>
@@ -1243,7 +1218,6 @@
 
         let modelSource = "models/ecapa_tdnn.onnx";
         if (window.location.protocol === "file:") {
-          statusText.innerHTML = "⏳ <strong>ローカル(file://)モードで ECAPA-TDNN モデル (24MB) をメモリに展開中...</strong>（数秒かかります）";
           const b64 = await loadBase64ModelScript("models/ecapa_tdnn_b64.js");
           modelSource = base64ToUint8Array(b64);
         }
@@ -1251,10 +1225,10 @@
         ortSession = await ort.InferenceSession.create(modelSource, {
           executionProviders: ["wasm"]
         });
-        statusBox.classList.add("ready");
-        statusText.innerHTML = "✅ <strong>ECAPA-TDNN モデル準備完了</strong>（自作音声・マイク録音のリアルタイム192次元特徴抽出が利用可能です）";
+        statusBox.style.display = "none";
       } catch (err) {
         console.error("ONNX load error:", err);
+        statusBox.style.display = "flex";
         statusText.innerHTML = "⚠️ <strong>ONNXモデル読込エラー:</strong> " + err.message;
       }
     }
@@ -1316,15 +1290,7 @@
       await audioCtx.close();
 
       let pcm = rendered.getChannelData(0);
-      // Light silence trimming at ends
-      let startIdx = 0, endIdx = pcm.length - 1;
-      const thresh = 0.015;
-      while (startIdx < pcm.length && Math.abs(pcm[startIdx]) < thresh) startIdx++;
-      while (endIdx > startIdx && Math.abs(pcm[endIdx]) < thresh) endIdx--;
-      if (endIdx - startIdx > SAMPLE_RATE * 0.5) {
-        pcm = pcm.slice(startIdx, endIdx + 1);
-      }
-      // Peak normalize
+      // Peak normalize without cutting leading/trailing audio
       let peak = 0.0;
       for (let i = 0; i < pcm.length; i++) {
         const a = Math.abs(pcm[i]);
@@ -1475,7 +1441,7 @@
     async function runVerification() {
       const resBox = document.getElementById("verify-result-box");
       if (!slotData.v1 || !slotData.v2) {
-        resBox.innerHTML = `<div style="padding:14px; border:1px dashed #94a3b8; border-radius:10px; color:#475569;">🎙️ 「音声 1」と「音声 2」の両方を入力するか、上のサンプルプリセットをクリックしてください。</div>`;
+        resBox.innerHTML = `<div style="padding:14px; border:1px dashed #94a3b8; border-radius:10px; color:#475569;">🎙️ 「音声 1」と「音声 2」の両方を録音・ファイル選択・またはサンプルから選択してください。</div>`;
         return;
       }
       try {
@@ -1549,7 +1515,7 @@
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: #64748b; margin-top: 4px;">
               <span>-0.20 (別話者領域)</span>
-              <span>0.50 (標準しきい値)</span>
+              <span>0.50 (推奨しきい値)</span>
               <span>1.00 (完全一致)</span>
             </div>
           </div>
@@ -1599,20 +1565,16 @@
     async function runIdentifySample(spkId) {
       const spk = speakerDB.find(s => s.id === spkId);
       if (!spk) return;
-      slotData.q = {
-        precomputedEmb: new Float32Array(spk.test_embedding),
-        waveform: null,
-        label: `${spk.name} [テスト用別セリフ]: 「${spk.test_text}」`,
-        audioUrl: spk.test_wav
-      };
-      updateSlotUI("q");
+      const selQ = document.getElementById("select-q");
+      if (selQ) selQ.value = `${spkId}:test`;
+      handleSampleSelect("q", `${spkId}:test`);
       await runIdentification();
     }
 
     async function runIdentification() {
       const resBox = document.getElementById("identify-result-box");
       if (!slotData.q) {
-        resBox.innerHTML = `<div style="padding:14px; border:1px dashed #94a3b8; border-radius:10px; color:#475569;">🎙️ 探索したい音声を入力するか、上のテスト音声ボタンをクリックしてください。</div>`;
+        resBox.innerHTML = `<div style="padding:14px; border:1px dashed #94a3b8; border-radius:10px; color:#475569;">🎙️ 識別したい音声をマイク録音・ファイル選択・またはサンプルから選択してください。</div>`;
         return;
       }
       try {
@@ -1757,15 +1719,20 @@
     function populateSampleDropdowns() {
       const s1 = document.getElementById("select-v1");
       const s2 = document.getElementById("select-v2");
-      const opts = [`<option value="">🎵 サンプル音声を選ぶ...</option>`];
+      const sq = document.getElementById("select-q");
+      const optsVerify = [`<option value="">🎵 サンプル音声を選ぶ...</option>`];
+      const optsIdentify = [`<option value="">🎵 サンプル音声を選ぶ...</option>`];
       speakerDB.forEach(spk => {
-        opts.push(`<option value="${spk.id}:enroll">${spk.name} [登録発話]</option>`);
+        optsVerify.push(`<option value="${spk.id}:enroll">${spk.name} [登録発話]</option>`);
         if (spk.test_wav) {
-          opts.push(`<option value="${spk.id}:test">${spk.name} [別セリフ]</option>`);
+          optsVerify.push(`<option value="${spk.id}:test">${spk.name} [別セリフ]</option>`);
+          optsIdentify.push(`<option value="${spk.id}:test">${spk.name} [別セリフ]</option>`);
         }
       });
-      s1.innerHTML = opts.join("");
-      s2.innerHTML = opts.join("");
+      const htmlVerify = optsVerify.join("");
+      if (s1) s1.innerHTML = htmlVerify;
+      if (s2) s2.innerHTML = htmlVerify;
+      if (sq) sq.innerHTML = optsIdentify.join("");
     }
 
     function renderSpeakerDBTable() {
