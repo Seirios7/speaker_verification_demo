@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>話者照合における発話単位アテンション機構を用いた話者埋め込み抽出法の検討 | 木村 駿 (名工大)</title>
-  <meta name="description" content="名古屋工業大学 木村駿らによる話者照合研究（Residual Refinement Module: RRM）の紹介ページおよびECAPA-TDNN (ONNX Runtime Web) を用いたブラウザ完結型・話者照合＆話者探索デモ。" />
+  <meta name="description" content="名古屋工業大学 木村駿らによる話者照合研究（Residual Refinement Module: RRM）の紹介ページおよび話者認識モデルを用いたブラウザ完結型・話者照合＆話者識別デモ。" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -535,7 +535,7 @@
       <section id="demo" style="margin-bottom: 16px;">
         <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h2 class="section-title">🎙️ ECAPA-TDNN による話者照合・話者探索デモ</h2>
+            <h2 class="section-title">🎙️ 話者認識モデルによる話者照合・話者識別デモ</h2>
           </div>
           <a href="#paper" class="btn btn-outline" style="font-size: 0.88rem; padding: 9px 16px; color: var(--primary-light); border-color: #93c5fd; background: #eff6ff;">
             📄 研究・論文紹介ページを見る →
@@ -760,7 +760,7 @@
         <p class="affiliation">名古屋工業大学 (Nagoya Institute of Technology)</p>
 
         <div class="hero-buttons">
-          <a href="#demo" class="btn btn-primary">🎙️ 話者照合・探索デモページへ移動</a>
+          <a href="#demo" class="btn btn-primary">🎙️ 話者照合・話者識別デモページへ移動</a>
           <a href="#pdf-section" onclick="scrollToPaperSection('pdf-section'); return false;" class="btn btn-secondary">📄 ページ内で論文を読む</a>
           <a href="kimura.shun_asj2026_autumn_paper.pdf" target="_blank" download class="btn btn-secondary">⬇️ 論文PDFをダウンロード</a>
         </div>
@@ -999,7 +999,7 @@
 
   <footer>
     <p><strong>木村 駿 (Shun Kimura)</strong> — 名古屋工業大学 情報工学科 / 徳田・南角・橋本研究室</p>
-    <p style="margin-top: 4px;">Powered by GitHub Pages &amp; ONNX Runtime Web (ECAPA-TDNN In-Browser Inference)</p>
+    <p style="margin-top: 4px;">Powered by GitHub Pages &amp; ONNX Runtime Web (In-Browser Speaker Recognition)</p>
   </footer>
 
   <!-- =====================================================================
@@ -1242,14 +1242,14 @@
         return {
           emb: item.precomputedEmb,
           latencyMs: item.cachedLatencyMs || 1,
-          logInfo: item.cachedLogInfo || `事前計算キャッシュ使用: ECAPA-TDNN 192次元ベクトル [1, 192]`,
+          logInfo: item.cachedLogInfo || `事前計算キャッシュ使用: 話者認識モデル 192次元ベクトル [1, 192]`,
           isLiveOnnx: false
         };
       }
 
-      // 2. For user-recorded / uploaded custom audio, run ECAPA-TDNN ONNX model in the browser
+      // 2. For user-recorded / uploaded custom audio, run speaker recognition ONNX model in the browser
       if (!ortSession) {
-        throw new Error("ECAPA-TDNNモデルがまだ読み込み中です。数秒待ってからもう一度お試しください。");
+        throw new Error("話者認識モデルがまだ読み込み中です。数秒待ってからもう一度お試しください。");
       }
       if (!item.waveform) {
         throw new Error("音声波形データが見つかりません。もう一度ファイルを選択または録音してください。");
@@ -1264,7 +1264,7 @@
       const emb = l2Normalize(rawEmb);
       const tEnd = performance.now();
       const latencyMs = Math.round(tEnd - t0);
-      const logInfo = `リアルタイム計算完了: 波形 ${(item.waveform.length / SAMPLE_RATE).toFixed(2)}s → 80次元Fbank [1, ${numFrames}, 80] (${Math.round(tFbank - t0)}ms) → ECAPA-TDNN推論 [1, 192] (${Math.round(tEnd - tFbank)}ms)`;
+      const logInfo = `リアルタイム計算完了: 波形 ${(item.waveform.length / SAMPLE_RATE).toFixed(2)}s → 80次元Fbank [1, ${numFrames}, 80] (${Math.round(tFbank - t0)}ms) → 話者認識モデル推論 [1, 192] (${Math.round(tEnd - tFbank)}ms)`;
 
       // Cache for subsequent comparisons (e.g. threshold slider or comparing against another voice)
       item.precomputedEmb = emb;
@@ -1445,7 +1445,7 @@
         return;
       }
       try {
-        resBox.innerHTML = `<div style="padding:14px; color:#1e40af; font-weight:600;">⏳ ECAPA-TDNN で192次元話者埋め込みベクトルを抽出・照合中...</div>`;
+        resBox.innerHTML = `<div style="padding:14px; color:#1e40af; font-weight:600;">⏳ 話者認識モデルで192次元話者埋め込みベクトルを抽出・照合中...</div>`;
         const r1 = await getSlotEmbedding("v1");
         const r2 = await getSlotEmbedding("v2");
         const score = cosineSimilarity(r1.emb, r2.emb);
@@ -1655,7 +1655,7 @@
         return;
       }
       try {
-        msgBox.innerHTML = "⏳ ECAPA-TDNN であなたの声の192次元話者埋め込みベクトルを計算中...";
+        msgBox.innerHTML = "⏳ 話者認識モデルであなたの声の192次元話者埋め込みベクトルを計算中...";
         const { emb } = await getSlotEmbedding("e");
         const newSpk = {
           id: `user_${Date.now()}`,
@@ -1669,7 +1669,7 @@
         renderSpeakerDBTable();
         populateSampleDropdowns();
         nameInput.value = "";
-        msgBox.innerHTML = `<span style="color:#059669; font-weight:700;">✅ 「${cleanName}」さんの声をデータベースに登録しました！左側のステップAで別のセリフを録音して探索を試してみてください。</span>`;
+        msgBox.innerHTML = `<span style="color:#059669; font-weight:700;">✅ 「${cleanName}」さんの声をデータベースに登録しました！左側の枠で別のセリフを録音して識別を試してみてください。</span>`;
       } catch (err) {
         msgBox.innerHTML = `<span style="color:#dc2626;">⚠️ ${err.message}</span>`;
       }
